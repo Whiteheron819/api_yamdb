@@ -5,9 +5,9 @@ from rest_framework.permissions import (IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Categories, Comment, Genres, Titles, User
+from .models import Categories, Comment, Genres, Titles, User, Review
 from .serializers import (CategoriesSerializer, CommentSerializer,
-                          GenresSerializer, TitlesSerializer, UserSerializer)
+                          GenresSerializer, TitlesSerializer, UserSerializer, ReviewSerializer)
 
 
 class CategoriesViewSet(ModelViewSet):
@@ -61,3 +61,18 @@ class GenresViewSet(ModelViewSet):
     filterset_fields = ["name"]
     filter_backends = [filters.SearchFilter]
     search_fields = ("name")
+
+
+class ReviewViewSet(ModelViewSet):
+    comments = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated,
+                          ]
+
+    # def perform_create(self, serializer):
+    #     title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+    #     serializer.save(author=self.request.user, title=title)
+    #
+    # def get_queryset(self):
+    #     title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+    #     return title.comments.all()
