@@ -41,6 +41,7 @@ class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+    lookup_field = 'username'
 
 
 class TitlesViewSet(ModelViewSet):
@@ -67,13 +68,4 @@ class GenresViewSet(ModelViewSet):
 class ReviewViewSet(ModelViewSet):
     comments = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated,
-                          ]
-
-    # def perform_create(self, serializer):
-    #     title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
-    #     serializer.save(author=self.request.user, title=title)
-    #
-    # def get_queryset(self):
-    #     title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
-    #     return title.comments.all()
+    permission_classes = [IsAuthenticated]
