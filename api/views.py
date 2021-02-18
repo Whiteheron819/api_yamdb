@@ -5,9 +5,10 @@ from rest_framework.permissions import (IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Categories, Comment, Genres, Titles, User, Review
+from .models import Categories, Comment, Genres, Review, Titles, User
 from .serializers import (CategoriesSerializer, CommentSerializer,
-                          GenresSerializer, TitlesSerializer, UserSerializer, ReviewSerializer)
+                          GenresSerializer, ReviewSerializer, TitlesSerializer,
+                          UserSerializer)
 
 
 class CategoriesViewSet(ModelViewSet):
