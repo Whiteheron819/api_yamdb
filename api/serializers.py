@@ -28,10 +28,21 @@ class GenresSerializer(serializers.ModelSerializer):
 
 
 class TitlesSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
+    rating = serializers.FloatField(read_only=True)
+    category = serializers.SlugRelatedField(read_only=True,
+                                            slug_field='slug'
+                                            )
+    genre = serializers.SlugRelatedField(read_only=True,
+                                         slug_field='slug'
+                                         )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'name', 'year', 'category', 'genre', 'rating')
         model = Titles
+    # class Meta:
+    #     fields = '__all__'
+    #     model = Titles
 
 
 class UserSerializer(serializers.ModelSerializer):
