@@ -4,7 +4,7 @@ from django.db import models
 User = get_user_model()
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.TextField(
         "Название категории",
         blank=True,
@@ -19,7 +19,7 @@ class Categories(models.Model):
         return self.name
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.TextField(
         "Название жанра",
         blank=True,
@@ -34,7 +34,7 @@ class Genres(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(
         "Название произведения", max_length=100,
         blank=True,
@@ -42,14 +42,14 @@ class Titles(models.Model):
     year = models.IntegerField("Год выпуска")
     description = models.TextField("Описание")
     genre = models.ManyToManyField(
-        'Genres',
-        related_name="genres",
+        Genre,
+        related_name="titles",
         blank=True,
     )
     category = models.ForeignKey(
-        'Categories',
+        Category,
         on_delete=models.SET_NULL,
-        related_name="categories",
+        related_name="titles",
         blank=True,
         null=True,
     )
@@ -59,7 +59,7 @@ class Titles(models.Model):
 
 
 class Review(models.Model):
-    title = models.ForeignKey(Titles, on_delete=models.CASCADE,
+    title = models.ForeignKey(Title, on_delete=models.CASCADE,
                               related_name='reviews')
     text = models.TextField('Отзыв')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
