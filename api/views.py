@@ -1,27 +1,23 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from rest_framework import status, viewsets, filters
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly, )
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Category, Comment, Genre, Review, Title, User
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer,
+from .serializers import (CategoriesSerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, TitleSlugSerializer, TitleGeneralSerializer,
                           UserSerializer)
-from .permissions import IsAuthorOrReadOnlyPermission
-
-
-class CategoryViewSet(ModelViewSet):
-    permission_classes = [IsAuthorOrReadOnlyPermission]
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
+from .permissions import GeneralPermission, AdminPermission
+from rest_framework.response import Response
+from .filters import ModelFilter
+from django.db.models import Avg
 
 class CommentViewSet(ModelViewSet):
     comments = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrReadOnlyPermission, IsAdminUser, 
+    permission_classes = [IsAdminUser
                           ]
 
     def perform_create(self, serializer):
@@ -36,25 +32,57 @@ class CommentViewSet(ModelViewSet):
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser,]
+    permission_classes = [AdminPermission]
     lookup_field = 'username'
 
 
-class TitleViewSet(ModelViewSet):
-    permission_classes = [IsAuthorOrReadOnlyPermission,]
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-    filter_backends = [DjangoFilterBackend]
-    
-
-
-class GenreViewSet(ModelViewSet):
-    permission_classes = [IsAuthorOrReadOnlyPermission]
+class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
+    lookup_field = 'slug'
     serializer_class = GenreSerializer
+    permission_classes = [GeneralPermission]
+
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name',)
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class CategoriesViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    lookup_field = 'slug'
+    serializer_class = CategoriesSerializer
+    permission_classes = [GeneralPermission]
+
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name',)
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    filter_backends = [DjangoFilterBackend]
+    filter_class = ModelFilter
+    permission_classes = [GeneralPermission]
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'partial_update'):
+            return TitleSlugSerializer
+        return TitleGeneralSerializer
+
+    def get_queryset(self):
+        return Title.objects.all().annotate(rating=Avg('reviews__score'))
 
 
 class ReviewViewSet(ModelViewSet):
     comments = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser, IsAuthorOrReadOnlyPermission, ]
+    permission_classes = [IsAuthenticatedOrReadOnly]
