@@ -14,35 +14,35 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
-class CategorySerializer(serializers.ModelSerializer):
-
-
+class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ['name', 'slug']
         model = Category
+        fields = ('name', 'slug',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
-
     class Meta:
-        fields = ['name', 'slug']
         model = Genre
+        fields = ('name', 'slug',)
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
-    score = serializers.FloatField(read_only=True)
-    category = serializers.SlugRelatedField(read_only=True,
-                                            slug_field='name'
-                                            )
-    genre = serializers.SlugRelatedField(read_only=True,
-                                         slug_field='name'
-                                         )
+class TitleSlugSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(many=True, slug_field='slug', queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(slug_field='slug', queryset=Category.objects.all())
 
     class Meta:
-        fields = ('id', 'name', 'year', 'category', 'genre', 'score',  )
         model = Title
+        fields = '__all__'
+
+
+class TitleGeneralSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True)
+    category = CategoriesSerializer()
+    rating = serializers.FloatField()
+
+    class Meta:
+        model = Title
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):

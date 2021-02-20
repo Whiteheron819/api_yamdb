@@ -5,53 +5,28 @@ User = get_user_model()
 
 
 class Category(models.Model):
-    name = models.TextField(
-        "Название категории",
-        blank=True,
-        null=True)
-    slug = models.SlugField(
-        unique=True,
-        max_length=50,
-        blank=True,
-        null=True)
+    name = models.CharField(max_length=30)
+    slug = models.SlugField(unique=True)
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
 class Genre(models.Model):
-    name = models.TextField(
-        "Название жанра",
-        blank=True,
-        null=True)
-    slug = models.SlugField(
-        unique=True,
-        max_length=50,
-        blank=True,
-        null=True)
+    name = models.CharField(max_length=30)
+    slug = models.SlugField(unique=True)
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
 class Title(models.Model):
-    name = models.CharField(
-        "Название произведения", max_length=100,
-        blank=True,
-        null=True)
+    name = models.TextField(max_length=50)
     year = models.IntegerField("Год выпуска")
-    description = models.TextField("Описание")
-    genre = models.ManyToManyField(
-        Genre,
-        related_name="titles",
-        blank=True,
-    )
+    description = models.TextField(max_length=200, null=True, blank=True)
+    genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        related_name="titles",
-        blank=True,
-        null=True,
+        Category, on_delete=models.SET_NULL, related_name="titles", null=True, blank=True
     )
 
     def __str__(self):
