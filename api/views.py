@@ -41,12 +41,12 @@ class UserViewSet(ModelViewSet):
 
 
 class TitleViewSet(ModelViewSet):
-    permission_classes = [IsAuthorOrReadOnlyPermission,]
+    permission_classes = [IsAuthorOrReadOnlyPermission, ]
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = [DjangoFilterBackend]
     
-
+    
 
 class GenreViewSet(ModelViewSet):
     permission_classes = [IsAuthorOrReadOnlyPermission]
