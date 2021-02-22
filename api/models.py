@@ -4,54 +4,29 @@ from django.db import models
 User = get_user_model()
 
 
-class Categories(models.Model):
-    name = models.TextField(
-        "Название категории",
-        blank=True,
-        null=True)
-    slug = models.SlugField(
-        unique=True,
-        max_length=50,
-        blank=True,
-        null=True)
+class Category(models.Model):
+    name = models.CharField(max_length=30)
+    slug = models.SlugField(unique=True)
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
-class Genres(models.Model):
-    name = models.TextField(
-        "Название жанра",
-        blank=True,
-        null=True)
-    slug = models.SlugField(
-        unique=True,
-        max_length=50,
-        blank=True,
-        null=True)
+class Genre(models.Model):
+    name = models.CharField(max_length=30)
+    slug = models.SlugField(unique=True)
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
-class Titles(models.Model):
-    name = models.CharField(
-        "Название произведения", max_length=100,
-        blank=True,
-        null=True)
+class Title(models.Model):
+    name = models.TextField(max_length=50)
     year = models.IntegerField("Год выпуска")
-    description = models.TextField("Описание")
-    genre = models.ManyToManyField(
-        'Genres',
-        related_name="genres",
-        blank=True,
-    )
+    description = models.TextField(max_length=200, null=True, blank=True)
+    genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
-        'Categories',
-        on_delete=models.SET_NULL,
-        related_name="categories",
-        blank=True,
-        null=True,
+        Category, on_delete=models.SET_NULL, related_name="titles", null=True, blank=True
     )
 
     def __str__(self):
@@ -59,7 +34,7 @@ class Titles(models.Model):
 
 
 class Review(models.Model):
-    title = models.ForeignKey(Titles, on_delete=models.CASCADE,
+    title = models.ForeignKey(Title, on_delete=models.CASCADE,
                               related_name='reviews')
     text = models.TextField('Отзыв')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
