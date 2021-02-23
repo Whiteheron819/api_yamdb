@@ -48,7 +48,7 @@ def confirmation_code_sender(request):
     user = User.objects.get_or_create(email=email)[0]
     confirmation_code = generator.make_token(user)
     send_mail(
-        subject='Ваш персональный код от сервиса YamDb',
+        subject='Ваш персональный код',
         from_email=settings.DEFAULT_FROM_EMAIL,
         message=f'Ваш код: {confirmation_code}.',
         recipient_list=[email],
