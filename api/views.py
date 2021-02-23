@@ -1,20 +1,18 @@
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets, filters
+from rest_framework import filters, status, viewsets
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly, )
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Category, Comment, Genre, Review, Title, User
+from .filters import ModelFilter
+from .models import Category, Comment, Genre, Review, Title
+from .permissions import AdminPermission, GeneralPermission
 from .serializers import (CategoriesSerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
-                          TitleSlugSerializer, TitleGeneralSerializer,
-                          UserSerializer)
-
-from .permissions import GeneralPermission, AdminPermission
-from rest_framework.response import Response
-from .filters import ModelFilter
-from django.db.models import Avg
+                          TitleGeneralSerializer, TitleSlugSerializer)
 
 
 class CommentViewSet(ModelViewSet):
@@ -30,13 +28,6 @@ class CommentViewSet(ModelViewSet):
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         return title.comments.all()
-
-
-class UserViewSet(ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AdminPermission]
-    lookup_field = 'username'
 
 
 class GenreViewSet(viewsets.ModelViewSet):
