@@ -1,10 +1,21 @@
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
 from .models import Comment, Review, Category, Genre, Title
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(source='author.username')
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+        default=serializers.CurrentUserDefault()
+    )
+
+    review = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='id',
+        default=serializers.CurrentUserDefault()
+    )
 
     class Meta:
         fields = '__all__'
@@ -44,11 +55,41 @@ class TitleGeneralSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
-
-
 class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(source='author.username')
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+        default=serializers.CurrentUserDefault()
+    )
+    title = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='id',
+        default=serializers.CurrentUserDefault()
+    )
+
+    def validate(self, data):
+        if self.context['request'].method == 'PATCH':
+            review = get_object_or_404(Review,
+                                       pk=self.context['view'].kwargs.get('pk')
+                                       )
+            if review.author != self.context['request'].user:
+                raise serializers.ValidationError(
+                    'fuck fuck fuck'
+                )
+            return data
+        if Review.objects.filter(
+                title=self.context['view'].kwargs.get('title_id'),
+                author=self.context['request'].user,
+        ).exists():
+            raise serializers.ValidationError(
+                'Only one review you can write'
+            )
+        score = data['score']
+        if score < 1 or score > 10:
+            raise serializers.ValidationError(
+                'Error! Rating must be from 1 to 10'
+            )
+        return data
 
     class Meta:
         fields = '__all__'
