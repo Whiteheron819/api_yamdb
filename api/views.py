@@ -7,13 +7,15 @@ from rest_framework.viewsets import ModelViewSet
 
 from .models import Category, Comment, Genre, Review, Title, User
 from .serializers import (CategoriesSerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSlugSerializer, TitleGeneralSerializer,
+                          GenreSerializer, ReviewSerializer,
+                          TitleSlugSerializer, TitleGeneralSerializer,
                           UserSerializer)
 
 from .permissions import GeneralPermission, AdminPermission
 from rest_framework.response import Response
 from .filters import ModelFilter
 from django.db.models import Avg
+
 
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
