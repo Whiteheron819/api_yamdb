@@ -1,5 +1,5 @@
-from api.permissions import IsAuthenticated
-from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from api.permissions import AdminPermission
 from rest_framework.response import Response
 from rest_framework import viewsets, filters
 from rest_framework.pagination import PageNumberPagination
@@ -16,14 +16,18 @@ class AdminProfileViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ('email', )
     lookup_field = 'username'
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (AdminPermission, )
     pagination_class = PageNumberPagination
 
-    @action(detail=False, methods=['GET', 'PATCH'])
+    @action(detail=False, permission_classes=[IsAuthenticated])
     def me(self, request):
         user = User.objects.get(username=request.user)
         serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
+        if request.method == 'GET':
+            serializer = UserSerializer(user)
             return Response(serializer.data)
-        Response(serializer.errors, status=status.HTTP_403_FORBIDDEN)
+        elif request.method == 'PATCH':
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors)
