@@ -41,6 +41,9 @@ class Review(models.Model):
                                related_name='reviews')
     score = models.IntegerField('Оценка')
 
+    def __str__(self):
+        return self.text
+
 
 class Comment(models.Model):
     author = models.ForeignKey(User,
@@ -51,3 +54,6 @@ class Comment(models.Model):
                                related_name='comments')
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+
+    def __str__(self):
+        return self.text

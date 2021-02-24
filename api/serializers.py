@@ -1,11 +1,21 @@
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
 from .models import Comment, Review, Category, Genre, Title
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(source='author.username')
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+        default=serializers.CurrentUserDefault()
+    )
 
+    review = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='id',
+        default=serializers.CurrentUserDefault()
+    )
 
     class Meta:
         fields = '__all__'
@@ -25,8 +35,10 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSlugSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(many=True, slug_field='slug', queryset=Genre.objects.all())
-    category = serializers.SlugRelatedField(slug_field='slug', queryset=Category.objects.all())
+    genre = serializers.SlugRelatedField(many=True, slug_field='slug',
+                                         queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(slug_field='slug',
+                                            queryset=Category.objects.all())
 
     class Meta:
         model = Title
@@ -43,11 +55,32 @@ class TitleGeneralSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
-
-
 class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(source='author.username')
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+        default=serializers.CurrentUserDefault()
+    )
+    title = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='id',
+        default=serializers.CurrentUserDefault()
+    )
+
+    def validate(self, data):
+        if Review.objects.filter(
+                title=self.context['view'].kwargs.get('title_id'),
+                author=self.context['request'].user,
+        ).exists() and self.context['request'].method == 'POST':
+            raise serializers.ValidationError(
+                'Only one review you can write'
+            )
+        score = data['score']
+        if score < 1 or score > 10:
+            raise serializers.ValidationError(
+                'Error! Rating must be from 1 to 10'
+            )
+        return data
 
     class Meta:
         fields = '__all__'
