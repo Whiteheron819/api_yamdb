@@ -2,14 +2,14 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
-from rest_framework.permissions import (IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .filters import ModelFilter
-from .models import Category, Comment, Genre, Review, Title
-from .permissions import AdminPermission, GeneralPermission, ReviewPermission, \
-    ModeratorPermission
+from .models import Category, Genre, Review, Title
+from .permissions import (GeneralPermission, ModeratorPermission,
+                          ReviewPermission)
 from .serializers import (CategoriesSerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleGeneralSerializer, TitleSlugSerializer)
@@ -62,16 +62,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-<<<<<<< HEAD
-    queryset = Review.objects.all()
-=======
->>>>>>> 85697e6c9e577da27ff30178f7c59187daf19d48
     filter_backends = [DjangoFilterBackend]
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-<<<<<<< HEAD
-=======
     def get_permissions(self):
         if self.action == 'partial_update':
             permission_classes = [ReviewPermission]
@@ -82,16 +76,12 @@ class ReviewViewSet(ModelViewSet):
             permission_classes = [IsAuthenticatedOrReadOnly]
         return [permission() for permission in permission_classes]
 
->>>>>>> 85697e6c9e577da27ff30178f7c59187daf19d48
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         return title.reviews.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-<<<<<<< HEAD
-        serializer.save(author=self.request.user, title=title)
-=======
         if serializer.is_valid():
             serializer.save(author=self.request.user,
                             title=title,
@@ -124,4 +114,3 @@ class CommentViewSet(ModelViewSet):
             serializer.save(author=self.request.user,
                             review=review,
                             text=self.request.data['text'])
->>>>>>> 85697e6c9e577da27ff30178f7c59187daf19d48
