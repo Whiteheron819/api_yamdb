@@ -8,7 +8,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from .filters import ModelFilter
 from .models import Category, Comment, Genre, Review, Title
-from .permissions import AdminPermission, GeneralPermission, IsAuthenticated
+from .permissions import AdminPermission, GeneralPermission, ReviewPermission, \
+    ModeratorPermission
 from .serializers import (CategoriesSerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleGeneralSerializer, TitleSlugSerializer)
@@ -65,6 +66,16 @@ class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    def get_permissions(self):
+        if self.action == 'partial_update':
+            permission_classes = [ReviewPermission]
+        elif self.action == 'destroy':
+            permission_classes = [IsAuthenticatedOrReadOnly,
+                                  ModeratorPermission]
+        else:
+            permission_classes = [IsAuthenticatedOrReadOnly]
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         return title.reviews.all()
@@ -82,6 +93,16 @@ class CommentViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        if self.action == 'partial_update':
+            permission_classes = [ReviewPermission]
+        elif self.action == 'destroy':
+            permission_classes = [IsAuthenticatedOrReadOnly,
+                                  ModeratorPermission]
+        else:
+            permission_classes = [IsAuthenticatedOrReadOnly]
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))

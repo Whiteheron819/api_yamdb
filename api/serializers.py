@@ -68,19 +68,10 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
-        if self.context['request'].method == 'PATCH':
-            review = get_object_or_404(Review,
-                                       pk=self.context['view'].kwargs.get('pk')
-                                       )
-            if review.author != self.context['request'].user:
-                raise serializers.ValidationError(
-                    'fuck fuck fuck'
-                )
-            return data
         if Review.objects.filter(
                 title=self.context['view'].kwargs.get('title_id'),
                 author=self.context['request'].user,
-        ).exists():
+        ).exists() and self.context['request'].method == 'POST':
             raise serializers.ValidationError(
                 'Only one review you can write'
             )
