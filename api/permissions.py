@@ -6,7 +6,7 @@ from users.models import User
 class AdminPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        return bool(
+        return (
             request.user.is_authenticated and (
                 request.user.is_superuser
                 or request.user.role == User.RoleUser.ADMIN))
@@ -15,7 +15,7 @@ class AdminPermission(permissions.BasePermission):
 class GeneralPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        return bool(
+        return (
             request.user.is_authenticated and (
                 request.user.is_staff
                 or request.user.role == User.RoleUser.ADMIN)
@@ -25,7 +25,7 @@ class GeneralPermission(permissions.BasePermission):
 class ReviewPermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return bool(
+        return (
             request.method in permissions.SAFE_METHODS
             or obj.author == request.user)
 
@@ -33,6 +33,6 @@ class ReviewPermission(permissions.BasePermission):
 class ModeratorPermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return bool(
+        return (
             request.method in permissions.SAFE_METHODS
             or request.user.role == User.RoleUser.MODERATOR)

@@ -10,7 +10,7 @@ from .filters import ModelFilter
 from .models import Category, Genre, Review, Title
 from .permissions import (GeneralPermission, ModeratorPermission,
                           ReviewPermission)
-from .serializers import (CategoriesSerializer, CommentSerializer,
+from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleGeneralSerializer, TitleSlugSerializer)
 
@@ -20,7 +20,6 @@ class GenreViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     serializer_class = GenreSerializer
     permission_classes = [GeneralPermission]
-
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
 
@@ -31,10 +30,10 @@ class GenreViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class CategoriesViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     lookup_field = 'slug'
-    serializer_class = CategoriesSerializer
+    serializer_class = CategorySerializer
     permission_classes = [GeneralPermission]
 
     filter_backends = [filters.SearchFilter]
@@ -51,14 +50,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filter_class = ModelFilter
     permission_classes = [GeneralPermission]
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return TitleSlugSerializer
         return TitleGeneralSerializer
-
-    def get_queryset(self):
-        return Title.objects.all().annotate(rating=Avg('reviews__score'))
 
 
 class ReviewViewSet(ModelViewSet):
