@@ -20,16 +20,16 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
-class CategoriesSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('name', 'slug',)
+        exclude = ['id']
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ('name', 'slug',)
+        exclude = ['id']
 
 
 class TitleSlugSerializer(serializers.ModelSerializer):
@@ -45,7 +45,7 @@ class TitleSlugSerializer(serializers.ModelSerializer):
 
 class TitleGeneralSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
-    category = CategoriesSerializer()
+    category = CategorySerializer()
     rating = serializers.FloatField()
 
     class Meta:

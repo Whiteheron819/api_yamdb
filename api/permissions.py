@@ -6,35 +6,28 @@ from users.models import User
 class AdminPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        return bool(
+        return (
             request.user.is_authenticated and (
-                request.user.is_superuser or
-                request.user.role == User.RoleUser.ADMIN))
+                request.user.is_superuser
+                or request.user.role == User.RoleUser.ADMIN))
 
 
 class GeneralPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        return bool(
+        return (
             request.user.is_authenticated and (
-                request.user.is_staff or
-                request.user.role == User.RoleUser.ADMIN) or
-            request.method in permissions.SAFE_METHODS)
+                request.user.is_staff
+                or request.user.role == User.RoleUser.ADMIN)
+            or request.method in permissions.SAFE_METHODS)
 
 
-class IsAuthenticated(permissions.BasePermission):
-    """
-    Allows access only to authenticated users.
-    """
+class ReviewPermission(permissions.BasePermission):
 
-    def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated)
-
-
-class IsUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        user = request.user
-        return bool(user and User.objects.filter(email=user))
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.method in permissions.SAFE_METHODS
+            or obj.author == request.user)
 
 
 class IsAdmin(permissions.BasePermission):
@@ -43,7 +36,7 @@ class IsAdmin(permissions.BasePermission):
                 request.user.role == 'admin')
 
 
-class ReviewPermission(permissions.BasePermission):
+class ReviewsPermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if request.method in ['POST', 'DELETE', 'PATCH']:
@@ -56,5 +49,6 @@ class ReviewPermission(permissions.BasePermission):
 class ModeratorPermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return bool(request.method in permissions.SAFE_METHODS or
-                    request.user.role == User.RoleUser.MODERATOR)
+        return (request.method in permissions.SAFE_METHODS or
+                request.user.role == User.RoleUser.MODERATOR)
+

@@ -1,19 +1,28 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from users.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
+import datetime
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=30)
-    slug = models.SlugField(unique=True)
+    name = models.CharField("Категория", max_length=30)
+    slug = models.SlugField("Слаг", unique=True)
+    
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
 
     def __str__(self):
         return self.slug
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=30)
-    slug = models.SlugField(unique=True)
+    name = models.CharField("Жанр", max_length=30)
+    slug = models.SlugField("Слаг", unique=True)
+
+    class Meta:
+        verbose_name = "Жанр"
+        verbose_name_plural = "Жанры"
 
     def __str__(self):
         return self.slug
@@ -21,13 +30,17 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.TextField(max_length=50)
-    year = models.IntegerField("Год выпуска")
+    year = models.PositiveIntegerField(
+        verbose_name='Год',
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(datetime.date.today().year)
+        ]
+    )
     description = models.TextField(max_length=200, null=True, blank=True)
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        related_name="titles", null=True, blank=True
+        Category, on_delete=models.SET_NULL, related_name="titles", null=True, blank=True
     )
 
     def __str__(self):
@@ -49,9 +62,6 @@ class Review(models.Model):
     class Meta:
         ordering = ["-pub_date"]
 
-    def __str__(self):
-        return self.text
-
 
 class Comment(models.Model):
     author = models.ForeignKey(User,
@@ -64,7 +74,7 @@ class Comment(models.Model):
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
-        ordering = ["-pub_date"]
+        ordering = ['-pub_date']
 
     def __str__(self):
         return self.text
