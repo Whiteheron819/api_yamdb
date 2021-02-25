@@ -41,3 +41,20 @@ class IsAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return (request.user.is_superuser == 1 or
                 request.user.role == 'admin')
+
+
+class ReviewPermission(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in ['POST', 'DELETE', 'PATCH']:
+            return (request.user.role == User.RoleUser.MODERATOR
+                    or obj.author == request.user)
+        else:
+            return permissions.IsAuthenticatedOrReadOnly
+
+
+class ModeratorPermission(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        return bool(request.method in permissions.SAFE_METHODS or
+                    request.user.role == User.RoleUser.MODERATOR)

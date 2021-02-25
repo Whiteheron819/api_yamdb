@@ -64,17 +64,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_permissions(self):
-        if self.action == 'partial_update':
-            permission_classes = [ReviewPermission]
-        elif self.action == 'destroy':
-            permission_classes = [IsAuthenticatedOrReadOnly,
-                                  ModeratorPermission]
-        else:
-            permission_classes = [IsAuthenticatedOrReadOnly]
-        return [permission() for permission in permission_classes]
+    permission_classes = [IsAuthenticatedOrReadOnly, ReviewPermission]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -82,27 +72,14 @@ class ReviewViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        if serializer.is_valid():
-            serializer.save(author=self.request.user,
-                            title=title,
-                            text=self.request.data['text'],
-                            score=self.request.data['score'])
+        serializer.save(author=self.request.user,
+                        title=title)
 
 
 class CommentViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_permissions(self):
-        if self.action == 'partial_update':
-            permission_classes = [ReviewPermission]
-        elif self.action == 'destroy':
-            permission_classes = [IsAuthenticatedOrReadOnly,
-                                  ModeratorPermission]
-        else:
-            permission_classes = [IsAuthenticatedOrReadOnly]
-        return [permission() for permission in permission_classes]
+    permission_classes = [IsAuthenticatedOrReadOnly, ReviewPermission]
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
@@ -110,7 +87,5 @@ class CommentViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        if serializer.is_valid():
-            serializer.save(author=self.request.user,
-                            review=review,
-                            text=self.request.data['text'])
+        serializer.save(author=self.request.user,
+                        review=review)

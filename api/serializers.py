@@ -12,8 +12,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     review = serializers.SlugRelatedField(
         read_only=True,
-        slug_field='id',
-        default=serializers.CurrentUserDefault()
+        slug_field='id'
     )
 
     class Meta:
@@ -73,11 +72,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         ).exists() and self.context['request'].method == 'POST':
             raise serializers.ValidationError(
                 'Only one review you can write'
-            )
-        score = data['score']
-        if score < 1 or score > 10:
-            raise serializers.ValidationError(
-                'Error! Rating must be from 1 to 10'
             )
         return data
 
