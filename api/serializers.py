@@ -62,7 +62,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     title = serializers.SlugRelatedField(
         read_only=True,
         slug_field='id',
-        default=serializers.CurrentUserDefault()
     )
 
     def validate(self, data):
