@@ -7,7 +7,7 @@ import datetime
 class Category(models.Model):
     name = models.CharField("Категория", max_length=30)
     slug = models.SlugField("Слаг", unique=True)
-    
+
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
@@ -40,7 +40,8 @@ class Title(models.Model):
     description = models.TextField(max_length=200, null=True, blank=True)
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, related_name="titles", null=True, blank=True
+        Category,
+        on_delete=models.SET_NULL, related_name="titles", null=True, blank=True
     )
 
     def __str__(self):
