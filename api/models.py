@@ -31,7 +31,7 @@ class Genre(models.Model):
 
 
 def my_year_validator(value):
-    if value < 1900 or value > timezone.now().year:
+    if value < 1896 or value > timezone.now().year:
         raise ValidationError(
             ('%(value)s is not a correcrt year!'),
             params={'value': value},
