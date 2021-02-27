@@ -37,6 +37,7 @@ def my_year_validator(value):
             params={'value': value},
         )
 
+
 class Title(models.Model):
     name = models.TextField(max_length=50)
     year = models.PositiveIntegerField(
