@@ -1,7 +1,7 @@
-import datetime
-
+from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.core.exceptions import ValidationError
 
 from users.models import User
 
@@ -30,15 +30,18 @@ class Genre(models.Model):
         return self.slug
 
 
+def my_year_validator(value):
+    if value < 1900 or value > timezone.now().year:
+        raise ValidationError(
+            ('%(value)s is not a correcrt year!'),
+            params={'value': value},
+        )
+
 class Title(models.Model):
     name = models.TextField(max_length=50)
     year = models.PositiveIntegerField(
         verbose_name="Год",
-        validators=[
-            MinValueValidator(0),
-            MaxValueValidator(datetime.date.today().year),
-        ],
-    )
+        validators=[my_year_validator])
     description = models.TextField(max_length=200, null=True, blank=True)
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(

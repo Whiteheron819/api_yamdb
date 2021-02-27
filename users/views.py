@@ -47,7 +47,7 @@ class AdminProfileViewSet(viewsets.ModelViewSet):
 def confirmation_code_sender(request):
     serializer = EmailSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    email = serializer.data["email"]
+    email = serializer.validated_data["email"]
     user = User.objects.get_or_create(email=email)[0]
     confirmation_code = generator.make_token(user)
     send_mail(
@@ -68,12 +68,12 @@ def confirmation_code_sender(request):
 def get_token(request):
     serializer = CodeSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    email = serializer.data["email"]
-    username = serializer.data["username"]
-    confirmation_code = serializer.data["confirmation_code"]
+    email = serializer.validated_data["email"]
+    username = serializer.validated_data["username"]
+    confirmation_code = serializer.validated_data["confirmation_code"]
     user = get_object_or_404(User, email=email, username=username)
-    check_token = default_token_generator.check_token(user, confirmation_code)
-    if check_token is False:
+    default_token_generator.check_token(user, confirmation_code)
+    if not default_token_generator.check_token(user, confirmation_code):
         return Response(
             {"confirmation_code": "Неверный код"},
             status=status.HTTP_400_BAD_REQUEST,
