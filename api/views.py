@@ -8,8 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from .filters import ModelFilter
 from .models import Category, Genre, Review, Title
-from .permissions import (GeneralPermission,
-                          ReviewsPermission)
+from .permissions import GeneralPermission, ReviewsPermission
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleGeneralSerializer, TitleSlugSerializer)
