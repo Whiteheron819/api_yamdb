@@ -1,6 +1,5 @@
 import django_filters
-
-from api.models import Category, Genre, Title
+from api.models import Title, Genre, Category
 
 
 class ModelFilter(django_filters.FilterSet):
